@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Desa Lompo Tengah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F7F3E8; --cream-2:#EFE8D6;
+    --green:#33582F; --green-deep:#1E3A1F;
+    --terracotta:#7A4A2A; --gold:#D6A93C;
+    --navy:#33305C; --navy-deep:#221F42;
+    --ink:#241E1A; --ink-soft:#5A4E40; --white:#FFFDF8;
+    --line: rgba(36,30,26,0.14); --radius:4px;
+    --shadow: 0 8px 24px rgba(36,30,26,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0;color:var(--green-deep);}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px;}
+  header{background:var(--navy-deep);color:var(--cream);padding:20px 0;}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  header .brand{display:flex;align-items:center;gap:12px;}
+  header img{width:36px;height:36px;object-fit:contain;}
+  header .brand-text{font-family:'Fraunces',serif;font-weight:600;font-size:16px;}
+  header a.back{color:rgba(247,243,232,0.8);text-decoration:none;font-size:13px;font-weight:600;}
+  main{padding:48px 0 80px;}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:28px 30px;box-shadow:var(--shadow);}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.12em;font-size:11.5px;color:var(--terracotta);font-weight:600;display:block;margin-bottom:8px;}
+
+  /* login */
+  #loginView{max-width:420px;margin:60px auto 0;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink-soft);}
+  .field input, .field select, .field textarea{
+    width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--radius);
+    font-family:'Plus Jakarta Sans',sans-serif;font-size:14.5px;background:var(--cream);
+  }
+  .field textarea{resize:vertical;min-height:90px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:var(--radius);
+    font-weight:700;font-size:14px;border:1.5px solid transparent;cursor:pointer;background:var(--green);color:var(--white);}
+  .btn:hover{background:var(--green-deep);}
+  .btn-outline{background:transparent;border-color:var(--ink);color:var(--ink);}
+  .btn-outline:hover{background:var(--ink);color:var(--cream);}
+  .btn-danger{background:var(--terracotta);}
+  .msg{font-size:13.5px;margin-top:10px;padding:10px 12px;border-radius:4px;display:none;}
+  .msg.show{display:block;}
+  .msg.err{background:#F6DCD3;color:#7A2E10;}
+  .msg.ok{background:#E1EBD8;color:var(--green-deep);}
+
+  /* app */
+  #appView{display:none;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+  .toolbar .who{font-size:13px;color:var(--ink-soft);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:600px){.form-grid{grid-template-columns:1fr;}}
+  .form-grid .full{grid-column:1/-1;}
+
+  table{width:100%;border-collapse:collapse;margin-top:30px;}
+  th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top;}
+  th{font-family:'IBM Plex Mono',monospace;text-transform:uppercase;font-size:11px;letter-spacing:.06em;color:var(--ink-soft);}
+  td.actions{white-space:nowrap;}
+  td.actions button{background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;padding:4px 6px;}
+  td.actions .edit{color:var(--green-deep);}
+  td.actions .del{color:var(--terracotta);}
+  .empty{padding:24px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
+  .setup-note{background:var(--cream-2);border:1px dashed var(--line);border-radius:6px;padding:16px 18px;font-size:13px;color:var(--ink-soft);margin-bottom:24px;}
+  .setup-note code{background:var(--white);padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo-desa.png" alt="Logo Desa">
+      <div class="brand-text">Admin Pengumuman — Desa Lompo Tengah</div>
+    </div>
+    <a class="back" href="index.html">← Kembali ke situs</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- LOGIN -->
+    <div id="loginView" class="card">
+      <span class="eyebrow">Masuk Admin</span>
+      <h2 style="margin-bottom:20px;">Login</h2>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@lompotengah.desa.id">
+      </div>
+      <div class="field">
+        <label>Kata Sandi</label>
+        <input type="password" id="loginPass" placeholder="••••••••">
+      </div>
+      <button class="btn" id="loginBtn" style="width:100%;justify-content:center;">Masuk</button>
+      <div class="msg err" id="loginMsg"></div>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:18px;">
+        Belum ada akun admin? Buat lewat Firebase Console → Authentication → Users → Add user.
+        Lihat <span class="mono">SETUP-FIREBASE.md</span> untuk panduan lengkap.
+      </p>
+    </div>
+
+    <!-- APP -->
+    <div id="appView">
+      <div class="setup-note" id="configWarning" style="display:none;">
+        ⚠️ Firebase belum dikonfigurasi. Buka file ini dan isi <code>firebaseConfig</code> di bagian bawah <code>&lt;script&gt;</code>, sama seperti pada <code>index.html</code>.
+      </div>
+
+      <div class="toolbar">
+        <div>
+          <span class="eyebrow">Kelola Berita</span>
+          <h2>Pengumuman &amp; Berita Desa</h2>
+        </div>
+        <div class="who">
+          <span id="whoEmail" class="mono"></span><br>
+          <a href="#" id="logoutBtn" style="font-weight:700;color:var(--terracotta);">Keluar</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 id="formTitle" style="margin-bottom:18px;">Tambah Pengumuman Baru</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label>Judul</label>
+            <input type="text" id="fJudul" placeholder="Contoh: Jadwal Pelayanan Kantor Desa">
+          </div>
+          <div class="field">
+            <label>Kategori</label>
+            <select id="fKategori">
+              <option>Pengumuman</option>
+              <option>Jadwal Pelayanan</option>
+              <option>Bantuan Sosial</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tanggal</label>
+            <input type="date" id="fTanggal">
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+          </div>
+          <div class="field full">
+            <label>Isi Pengumuman</label>
+            <textarea id="fIsi" placeholder="Tuliskan isi pengumuman secara singkat dan jelas..."></textarea>
+          </div>
+        </div>
+        <input type="hidden" id="fId">
+        <div style="display:flex;gap:10px;margin-top:6px;">
+          <button class="btn" id="saveBtn">Simpan Pengumuman</button>
+          <button class="btn btn-outline" id="cancelEditBtn" style="display:none;">Batal Edit</button>
+        </div>
+        <div class="msg" id="formMsg"></div>
+      </div>
+
+      <table id="pengumumanTable">
+        <thead>
+          <tr><th>Tanggal</th><th>Kategori</th><th>Judul</th><th>Aksi</th></tr>
+        </thead>
+        <tbody id="pengumumanBody"></tbody>
+      </table>
+      <div class="empty" id="emptyState" style="display:none;">Belum ada pengumuman. Tambahkan yang pertama di atas.</div>
+    </div>
+
+  </div>
+</main>
+
+<!-- =====================================================================
+  GANTI firebaseConfig DI BAWAH INI dengan konfigurasi project Firebase Anda,
+  SAMA PERSIS seperti yang ditempel di index.html.
+  Lihat SETUP-FIREBASE.md untuk langkah lengkap membuat project, mengaktifkan
+  Firestore + Authentication, membuat akun admin, dan aturan keamanan.
+===================================================================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "GANTI_DENGAN_API_KEY",
+    authDomain: "GANTI.firebaseapp.com",
+    projectId: "GANTI_PROJECT_ID",
+    storageBucket: "GANTI.appspot.com",
+    messagingSenderId: "GANTI",
+    appId: "GANTI"
+  };
+
+  const loginView = document.getElementById('loginView');
+  const appView = document.getElementById('appView');
+  const configWarning = document.getElementById('configWarning');
+
+  if (firebaseConfig.apiKey.startsWith('GANTI')) {
+    configWarning.style.display = 'block';
+  }
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // ---- Auth ----
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const msg = document.getElementById('loginMsg');
+    msg.classList.remove('show');
+    auth.signInWithEmailAndPassword(email, pass).catch(err => {
+      msg.textContent = 'Gagal masuk: ' + err.message;
+      msg.classList.add('show');
+    });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    auth.signOut();
+  });
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loginView.style.display = 'none';
+      appView.style.display = 'block';
+      document.getElementById('whoEmail').textContent = user.email;
+      loadPengumuman();
+    } else {
+      loginView.style.display = 'block';
+      appView.style.display = 'none';
+    }
+  });
+
+  // ---- CRUD Pengumuman ----
+  const col = () => db.collection('pengumuman');
+
+  function resetForm() {
+    document.getElementById('fId').value = '';
+    document.getElementById('fJudul').value = '';
+    document.getElementById('fKategori').value = 'Pengumuman';
+    document.getElementById('fTanggal').value = '';
+    document.getElementById('fIsi').value = '';
+    document.getElementById('formTitle').textContent = 'Tambah Pengumuman Baru';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+  }
+
+  document.getElementById('cancelEditBtn').addEventListener('click', resetForm);
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const id = document.getElementById('fId').value;
+    const judul = document.getElementById('fJudul').value.trim();
+    const kategori = document.getElementById('fKategori').value;
+    const tanggalStr = document.getElementById('fTanggal').value;
+    const isi = document.getElementById('fIsi').value.trim();
+    const formMsg = document.getElementById('formMsg');
+    formMsg.className = 'msg';
+
+    if (!judul || !tanggalStr || !isi) {
+      formMsg.textContent = 'Judul, tanggal, dan isi wajib diisi.';
+      formMsg.classList.add('show', 'err');
+      return;
+    }
+
+    const data = {
+      judul, kategori, isi,
+      tanggal: firebase.firestore.Timestamp.fromDate(new Date(tanggalStr))
+    };
+
+    const op = id ? col().doc(id).update(data) : col().add(data);
+    op.then(() => {
+      formMsg.textContent = 'Tersimpan.';
+      formMsg.classList.add('show', 'ok');
+      resetForm();
+      loadPengumuman();
+    }).catch(err => {
+      formMsg.textContent = 'Gagal menyimpan: ' + err.message;
+      formMsg.classList.add('show', 'err');
+    });
+  });
+
+  function editItem(id, d) {
+    document.getElementById('fId').value = id;
+    document.getElementById('fJudul').value = d.judul || '';
+    document.getElementById('fKategori').value = d.kategori || 'Pengumuman';
+    const tgl = d.tanggal && d.tanggal.toDate ? d.tanggal.toDate() : new Date();
+    document.getElementById('fTanggal').value = tgl.toISOString().slice(0,10);
+    document.getElementById('fIsi').value = d.isi || '';
+    document.getElementById('formTitle').textContent = 'Edit Pengumuman';
+    document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function deleteItem(id) {
+    if (!confirm('Hapus pengumuman ini?')) return;
+    col().doc(id).delete().then(loadPengumuman);
+  }
+
+  function loadPengumuman() {
+    col().orderBy('tanggal', 'desc').get().then(snap => {
+      const body = document.getElementById('pengumumanBody');
+      const empty = document.getElementById('emptyState');
+      body.innerHTML = '';
+      if (snap.empty) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      snap.forEach(doc => {
+        const d = doc.data();
+        const tgl = d.tanggal && d.tanggal.toDate ? d.tanggal.toDate() : new Date();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="mono">${tgl.toLocaleDateString('id-ID')}</td>
+          <td>${d.kategori || ''}</td>
+          <td>${d.judul || ''}</td>
+          <td class="actions">
+            <button class="edit">Edit</button>
+            <button class="del">Hapus</button>
+          </td>`;
+        tr.querySelector('.edit').addEventListener('click', () => editItem(doc.id, d));
+        tr.querySelector('.del').addEventListener('click', () => deleteItem(doc.id));
+        body.appendChild(tr);
+      });
+    }).catch(err => console.error('Gagal memuat pengumuman:', err));
+  }
+</script>
+
+</body>
+</html>
