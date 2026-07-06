@@ -69,6 +69,23 @@
   .empty{padding:24px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
   .setup-note{background:var(--cream-2);border:1px dashed var(--line);border-radius:6px;padding:16px 18px;font-size:13px;color:var(--ink-soft);margin-bottom:24px;}
   .setup-note code{background:var(--white);padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace;}
+
+  /* foto kegiatan */
+  .foto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-top:24px;}
+  .foto-thumb{position:relative;border-radius:6px;overflow:hidden;aspect-ratio:1/1;border:1px solid var(--line);background:var(--cream-2);}
+  .foto-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .foto-thumb .cap{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.65));color:var(--white);font-size:11.5px;font-weight:700;}
+  .foto-thumb .tag{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--ink);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;}
+  .foto-thumb .del-btn{
+    position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:none;
+    background:rgba(0,0,0,.55);color:var(--white);cursor:pointer;font-size:14px;line-height:1;
+  }
+  .foto-thumb .del-btn:hover{background:var(--terracotta);}
+  .upload-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
+  .upload-row .field{flex:1;min-width:160px;margin-bottom:0;}
+  .progress-bar{height:6px;background:var(--cream-2);border-radius:999px;overflow:hidden;margin-top:12px;display:none;}
+  .progress-bar.show{display:block;}
+  .progress-bar .fill{height:100%;background:var(--green);width:0%;transition:width .2s ease;}
 </style>
 </head>
 <body>
@@ -91,8 +108,8 @@
       <span class="eyebrow">Masuk Admin</span>
       <h2 style="margin-bottom:20px;">Login</h2>
       <div class="field">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="admin@lompotengah.desa.id">
+        <label>Username</label>
+        <input type="text" id="loginEmail" placeholder="admin12345">
       </div>
       <div class="field">
         <label>Kata Sandi</label>
@@ -101,8 +118,7 @@
       <button class="btn" id="loginBtn" style="width:100%;justify-content:center;">Masuk</button>
       <div class="msg err" id="loginMsg"></div>
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:18px;">
-        Belum ada akun admin? Buat lewat Firebase Console → Authentication → Users → Add user.
-        Lihat <span class="mono">SETUP-FIREBASE.md</span> untuk panduan lengkap.
+        Username &amp; password diatur langsung di dalam file ini oleh pengelola situs.
       </p>
     </div>
 
@@ -165,8 +181,82 @@
         <tbody id="pengumumanBody"></tbody>
       </table>
       <div class="empty" id="emptyState" style="display:none;">Belum ada pengumuman. Tambahkan yang pertama di atas.</div>
-    </div>
 
+      <div class="toolbar" style="margin-top:56px;">
+        <div>
+          <span class="eyebrow">Kelola Media</span>
+          <h2>Foto Kegiatan Desa</h2>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:6px;">Unggah Foto Baru</h3>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 18px;">
+          <strong>Beranda</strong> = strip 4 foto di halaman utama. <strong>Galeri</strong> = grid foto di bagian Galeri Kegiatan.
+        </p>
+        <div class="upload-row">
+          <div class="field">
+            <label>Pilih Foto</label>
+            <input type="file" id="fotoFile" accept="image/*">
+          </div>
+          <div class="field">
+            <label>Kategori</label>
+            <select id="fotoKategori">
+              <option value="beranda">Beranda</option>
+              <option value="galeri">Galeri</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Keterangan Foto</label>
+            <input type="text" id="fotoCaption" placeholder="Contoh: Gotong Royong Warga">
+          </div>
+          <button class="btn" id="uploadFotoBtn">Unggah</button>
+        </div>
+        <div class="progress-bar" id="uploadProgress"><div class="fill" id="uploadProgressFill"></div></div>
+        <div class="msg" id="fotoMsg"></div>
+      </div>
+
+      <div class="foto-grid" id="fotoGrid"></div>
+      <div class="empty" id="fotoEmptyState" style="display:none;">Belum ada foto. Unggah yang pertama di atas.</div>
+
+      <div class="toolbar" style="margin-top:56px;">
+        <div>
+          <span class="eyebrow">Kelola Data</span>
+          <h2>Data Desa</h2>
+        </div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 18px;">
+          Angka ini otomatis mengisi kartu statistik di bagian <strong>Data Desa</strong> dan
+          grafik Laki-laki/Perempuan di bagian <strong>Profil Desa</strong> pada situs utama.
+        </p>
+        <div class="form-grid">
+          <div class="field">
+            <label>Jumlah Penduduk</label>
+            <input type="text" id="ddPenduduk" placeholder="Contoh: 2.145 Jiwa">
+          </div>
+          <div class="field">
+            <label>Jumlah Kepala Keluarga</label>
+            <input type="text" id="ddKK" placeholder="Contoh: 612 KK">
+          </div>
+          <div class="field">
+            <label>Persentase Laki-laki (%)</label>
+            <input type="number" id="ddPersenLaki" min="0" max="100" placeholder="Contoh: 51">
+          </div>
+          <div class="field">
+            <label>Persentase Perempuan (%)</label>
+            <input type="number" id="ddPersenPerempuan" min="0" max="100" placeholder="Contoh: 49">
+          </div>
+          <div class="field full">
+            <label>Jumlah Pelaku UMKM</label>
+            <input type="text" id="ddUMKM" placeholder="Contoh: 87 Pelaku Usaha">
+          </div>
+        </div>
+        <button class="btn" id="saveDataDesaBtn" style="margin-top:6px;">Simpan Data Desa</button>
+        <div class="msg" id="dataDesaMsg"></div>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -177,16 +267,18 @@
   Firestore + Authentication, membuat akun admin, dan aturan keamanan.
 ===================================================================== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script>
   const firebaseConfig = {
-    apiKey: "GANTI_DENGAN_API_KEY",
-    authDomain: "GANTI.firebaseapp.com",
-    projectId: "GANTI_PROJECT_ID",
-    storageBucket: "GANTI.appspot.com",
-    messagingSenderId: "GANTI",
-    appId: "GANTI"
+    apiKey: "AIzaSyBvekNJtp5dm2JpryxxQHYmB2iBmo8-E1E",
+    authDomain: "web-desa-f02e0.firebaseapp.com",
+    databaseURL: "https://web-desa-f02e0-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "web-desa-f02e0",
+    storageBucket: "web-desa-f02e0.firebasestorage.app",
+    messagingSenderId: "759550314144",
+    appId: "1:759550314144:web:a5a55c9fa4986965946bc5",
+    measurementId: "G-LGDZ0JTVDF"
   };
 
   const loginView = document.getElementById('loginView');
@@ -198,37 +290,67 @@
   }
 
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
   const db = firebase.firestore();
+  const storage = firebase.storage();
 
-  // ---- Auth ----
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('loginEmail').value.trim();
+  // ============================================================
+  // LOGIN SEDERHANA — username & password diatur langsung di sini.
+  // Ganti nilainya kapan saja, lalu simpan ulang file ini.
+  // Catatan: ini bukan login yang benar-benar aman (siapa pun yang
+  // membuka source code file ini bisa melihat kredensialnya, dan
+  // siapa pun yang tahu username/password bisa masuk dari device
+  // manapun). Cukup untuk mencegah orang iseng, TAPI jangan sebar
+  // link admin.html ini secara publik. Untuk keamanan yang lebih
+  // kuat, gunakan Firebase Authentication (lihat SETUP-FIREBASE.md).
+  // ============================================================
+  const ADMIN_USERNAME = 'admin12345';
+  const ADMIN_PASSWORD = 'LompoTengah@2026!';
+
+  const loginBtnEl = document.getElementById('loginBtn');
+  const logoutBtnEl = document.getElementById('logoutBtn');
+
+  function showApp(username) {
+    loginView.style.display = 'none';
+    appView.style.display = 'block';
+    document.getElementById('whoEmail').textContent = username;
+    loadPengumuman();
+    loadFoto();
+    loadDataDesa();
+  }
+
+  function showLogin() {
+    loginView.style.display = 'block';
+    appView.style.display = 'none';
+  }
+
+  loginBtnEl.addEventListener('click', () => {
+    const user = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
     const msg = document.getElementById('loginMsg');
     msg.classList.remove('show');
-    auth.signInWithEmailAndPassword(email, pass).catch(err => {
-      msg.textContent = 'Gagal masuk: ' + err.message;
-      msg.classList.add('show');
-    });
-  });
 
-  document.getElementById('logoutBtn').addEventListener('click', (e) => {
-    e.preventDefault();
-    auth.signOut();
-  });
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      loginView.style.display = 'none';
-      appView.style.display = 'block';
-      document.getElementById('whoEmail').textContent = user.email;
-      loadPengumuman();
+    if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+      sessionStorage.setItem('desaAdminUser', user);
+      showApp(user);
     } else {
-      loginView.style.display = 'block';
-      appView.style.display = 'none';
+      msg.textContent = 'Username atau password salah.';
+      msg.classList.add('show');
     }
   });
+
+  logoutBtnEl.addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem('desaAdminUser');
+    showLogin();
+  });
+
+  // Tetap login selama tab browser belum ditutup
+  const savedUser = sessionStorage.getItem('desaAdminUser');
+  if (savedUser === ADMIN_USERNAME) {
+    showApp(savedUser);
+  } else {
+    showLogin();
+  }
 
   // ---- CRUD Pengumuman ----
   const col = () => db.collection('pengumuman');
@@ -319,6 +441,126 @@
       });
     }).catch(err => console.error('Gagal memuat pengumuman:', err));
   }
+
+  // ---- CRUD Foto Kegiatan ----
+  const fotoCol = () => db.collection('galeri');
+
+  document.getElementById('uploadFotoBtn').addEventListener('click', () => {
+    const fileInput = document.getElementById('fotoFile');
+    const kategori = document.getElementById('fotoKategori').value;
+    const caption = document.getElementById('fotoCaption').value.trim();
+    const msg = document.getElementById('fotoMsg');
+    const bar = document.getElementById('uploadProgress');
+    const fill = document.getElementById('uploadProgressFill');
+    msg.className = 'msg';
+
+    const file = fileInput.files[0];
+    if (!file) {
+      msg.textContent = 'Pilih file foto terlebih dahulu.';
+      msg.classList.add('show', 'err');
+      return;
+    }
+    if (!caption) {
+      msg.textContent = 'Isi keterangan foto terlebih dahulu.';
+      msg.classList.add('show', 'err');
+      return;
+    }
+
+    const path = 'galeri/' + Date.now() + '_' + file.name.replace(/\s+/g, '_');
+    const ref = storage.ref(path);
+    const task = ref.put(file);
+    bar.classList.add('show');
+
+    task.on('state_changed', (snap) => {
+      const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+      fill.style.width = pct + '%';
+    }, (err) => {
+      bar.classList.remove('show');
+      msg.textContent = 'Gagal mengunggah: ' + err.message;
+      msg.classList.add('show', 'err');
+    }, () => {
+      task.snapshot.ref.getDownloadURL().then(url => {
+        return fotoCol().add({
+          url, caption, kategori,
+          path,
+          tanggal: firebase.firestore.Timestamp.now()
+        });
+      }).then(() => {
+        bar.classList.remove('show');
+        fill.style.width = '0%';
+        fileInput.value = '';
+        document.getElementById('fotoCaption').value = '';
+        msg.textContent = 'Foto berhasil diunggah.';
+        msg.classList.add('show', 'ok');
+        loadFoto();
+      }).catch(err => {
+        bar.classList.remove('show');
+        msg.textContent = 'Gagal menyimpan data foto: ' + err.message;
+        msg.classList.add('show', 'err');
+      });
+    });
+  });
+
+  function deleteFoto(id, path) {
+    if (!confirm('Hapus foto ini?')) return;
+    fotoCol().doc(id).delete()
+      .then(() => { if (path) return storage.ref(path).delete().catch(() => {}); })
+      .then(loadFoto)
+      .catch(err => alert('Gagal menghapus: ' + err.message));
+  }
+
+  function loadFoto() {
+    fotoCol().orderBy('tanggal', 'desc').get().then(snap => {
+      const grid = document.getElementById('fotoGrid');
+      const empty = document.getElementById('fotoEmptyState');
+      grid.innerHTML = '';
+      if (snap.empty) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      snap.forEach(doc => {
+        const d = doc.data();
+        const div = document.createElement('div');
+        div.className = 'foto-thumb';
+        div.innerHTML = `
+          <img src="${d.url}" alt="${d.caption || ''}">
+          <span class="tag">${d.kategori === 'beranda' ? 'Beranda' : 'Galeri'}</span>
+          <button class="del-btn" title="Hapus">✕</button>
+          <div class="cap">${d.caption || ''}</div>`;
+        div.querySelector('.del-btn').addEventListener('click', () => deleteFoto(doc.id, d.path));
+        grid.appendChild(div);
+      });
+    }).catch(err => console.error('Gagal memuat foto:', err));
+  }
+
+  function loadDataDesa() {
+    db.collection('data_desa').doc('utama').get().then(doc => {
+      if (!doc.exists) return;
+      const d = doc.data();
+      document.getElementById('ddPenduduk').value = d.jumlahPenduduk || '';
+      document.getElementById('ddKK').value = d.jumlahKK || '';
+      document.getElementById('ddPersenLaki').value = d.persenLaki ?? '';
+      document.getElementById('ddPersenPerempuan').value = d.persenPerempuan ?? '';
+      document.getElementById('ddUMKM').value = d.jumlahUMKM || '';
+    }).catch(err => console.error('Gagal memuat data desa:', err));
+  }
+
+  document.getElementById('saveDataDesaBtn').addEventListener('click', () => {
+    const msg = document.getElementById('dataDesaMsg');
+    msg.className = 'msg';
+    const data = {
+      jumlahPenduduk: document.getElementById('ddPenduduk').value.trim(),
+      jumlahKK: document.getElementById('ddKK').value.trim(),
+      persenLaki: Number(document.getElementById('ddPersenLaki').value) || 0,
+      persenPerempuan: Number(document.getElementById('ddPersenPerempuan').value) || 0,
+      jumlahUMKM: document.getElementById('ddUMKM').value.trim()
+    };
+    db.collection('data_desa').doc('utama').set(data, { merge: true }).then(() => {
+      msg.textContent = 'Data desa tersimpan.';
+      msg.classList.add('show', 'ok');
+    }).catch(err => {
+      msg.textContent = 'Gagal menyimpan: ' + err.message;
+      msg.classList.add('show', 'err');
+    });
+  });
 </script>
 
 </body>
