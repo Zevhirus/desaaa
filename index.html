@@ -461,7 +461,7 @@
   @media (max-width:700px){ .subdata-grid{grid-template-columns:1fr;} }
 
   /* ===== GALERI ===== */
-  .gallery-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+ .gallery-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
   @media (max-width:760px){ .gallery-grid{grid-template-columns:repeat(2,1fr);} }
   .gallery-item{
     aspect-ratio:1/1; border-radius:6px; position:relative; overflow:hidden;
@@ -538,7 +538,6 @@
       <a href="#data">Data Desa</a>
       <a href="#galeri">Galeri</a>
       <a href="#pengaduan">Pengaduan</a>
-      <a href="#kontak">Kontak</a>
     </nav>
   </div>
 </header>
@@ -557,25 +556,7 @@
         </div>
       </div>
       <div class="hero-art hero-anim d3">
-        <svg viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice">
-          <rect width="400" height="310" fill="#2C4023"/>
-          <!-- sawah / rice terrace contours -->
-          <path d="M0 230 Q100 210 200 230 T400 230 V310 H0 Z" fill="#3F5B33"/>
-          <path d="M0 255 Q100 240 200 255 T400 255 V310 H0 Z" fill="#4C6B3E"/>
-          <path d="M0 280 Q100 268 200 280 T400 280 V310 H0 Z" fill="#5C7A4A"/>
-          <!-- sky glow -->
-          <circle cx="320" cy="60" r="46" fill="#D9A441" opacity="0.9"/>
-          <!-- traditional stilted house silhouette -->
-          <g transform="translate(120,150)">
-            <polygon points="0,40 60,0 120,40" fill="#C1683B"/>
-            <rect x="15" y="40" width="90" height="45" fill="#F7F3E8" opacity="0.92"/>
-            <rect x="35" y="55" width="16" height="30" fill="#2A2118"/>
-            <rect x="70" y="55" width="16" height="18" fill="#2A2118"/>
-            <rect x="0" y="85" width="6" height="35" fill="#2A2118"/>
-            <rect x="114" y="85" width="6" height="35" fill="#2A2118"/>
-          </g>
-        </svg>
-      </div>
+        <img src="assets/pegawai desa.jpeg" alt="Pemandangan Desa Lompo Tengah">
     </div>
 
     <div class="sambutan wrap hero-anim" style="padding:28px 30px; animation-delay:.55s;">
@@ -634,7 +615,9 @@
       <div class="card reveal">
         <span class="tag">Sejarah Desa</span>
         <h3>Asal Usul dan Perkembangan</h3>
-        <p>Uraian sejarah terbentuknya Desa Lompo Tengah, tokoh pendiri, serta perkembangan wilayah dari masa ke masa hingga menjadi desa yang berdiri saat ini. <em>(Konten sejarah lengkap diisi oleh perangkat desa.)</em></p>
+        <p>Sejarah Desa Lompo Tengah berawal pada masa Saopraja Tanete, ketika wilayah ini masih berstatus sebagai distrik yang dipimpin oleh seorang Kepala Distrik bergelar Arung Kading. Beberapa tokoh yang pernah memimpin distrik ini antara lain Arung Kading Labanrio, Laranreng, Lapaena, Lamanda, Lamuhammad, Pasolongi, hingga Lamalli. Seiring terbentuknya Kabupaten Barru pada tahun 1960, Saopraja Tanete dibagi menjadi Kecamatan Tanete Riaja dan Tanete Rilau. Pada saat itu, Distrik Lompo Tengah berubah menjadi Desa Lompo Tengah yang kemudian terbagi menjadi Desa Kading dan Desa Botto Lampe.
+
+Pada tahun 1966, Desa Kading dan Desa Botto Lampe kembali digabung menjadi Desa Lompo Tengah. Pada tahun yang sama diselenggarakan pemilihan kepala desa pertama dan Mustafa Kamal terpilih sebagai Kepala Desa. Setelah itu, kepemimpinan desa terus berganti sesuai masa jabatan masing-masing. Pada tahun 1994, Desa Lompo Tengah kembali mengalami pemekaran sehingga terbentuk tiga desa, yaitu Desa Lompo Tengah, Desa Kading, dan Desa Lempang. Hingga saat ini, Desa Lompo Tengah terus berkembang dan berupaya meningkatkan pelayanan serta kesejahteraan masyarakatnya.. <em>(Konten sejarah lengkap diisi oleh perangkat desa.)</em></p>
       </div>
       <div class="card reveal">
         <span class="tag">Tugas &amp; Fungsi</span>
@@ -981,12 +964,36 @@
       <h2>Galeri Kegiatan</h2>
       <p>Dokumentasi visual kegiatan dan pelayanan Desa Lompo Tengah.</p>
     </div>
-    <div class="gallery-grid" id="galeriGrid">
-      <div class="gallery-item reveal" style="background-image:url('assets/Kantor\ Desa\ Lompo\ Tengah.jpeg');"><span>Kantor desa</span></div>
-      <div class="gallery-item reveal" style="background-image:url('assets/gotong\ royong\ jalanan.jpeg');"><span>Gotong royong</span></div>
-      <div class="gallery-item reveal" style="background-image:url('assets/Kegiatan\ Posyandu\ Lansia.jpeg');"><span>Kegiatan Posyand</span></div>
-      <div class="gallery-item reveal" style="background-image:url('assets/beppa janda.jpeg');"><span>beppa janda</span></div>
-  
+
+    <div class="galeri-kategori-grid">
+      <div class="galeri-kolom reveal">
+        <h3 class="galeri-kolom-title">Posyandu</h3>
+        <div class="foto-slider foto-slider-sm" id="posyanduSliderWrap">
+          <div class="foto-slider-track" id="galeriPosyandu">
+            <div class="foto-slide" style="background-image:url('assets/beranda-02-posyandu-lansia.jpg');"><span>Kegiatan Posyandu Lansia</span></div>
+            <div class="foto-slide" style="background-image:url('assets/beranda-03-posyandu-balita.jpg');"><span>Penimbangan Balita di Posyandu</span></div>
+          </div>
+          <button class="slider-arrow prev" id="posyanduPrev" aria-label="Sebelumnya">‹</button>
+          <button class="slider-arrow next" id="posyanduNext" aria-label="Berikutnya">›</button>
+          <div class="slider-dots" id="posyanduDots"></div>
+        </div>
+      </div>
+
+      <div class="galeri-kolom reveal">
+        <h3 class="galeri-kolom-title">Kerja Bakti &amp; Gotong Royong</h3>
+        <div class="foto-slider foto-slider-sm" id="kerjabaktiSliderWrap">
+          <div class="foto-slider-track" id="galeriKerjaBakti">
+            <div class="foto-slide" style="background-image:url('assets/beranda-05-gotong-royong.jpg');"><span>Gotong Royong Bersih Lingkungan</span></div>
+            <div class="foto-slide" style="background-image:url('assets/beranda-09-gotong-royong-saluran.jpg');"><span>Gotong Royong Bersih Saluran &amp; Jalan</span></div>
+            <div class="foto-slide" style="background-image:url('assets/1.jpeg');"><span>Pembersihan Lapangan Desa</span></div>
+            <div class="foto-slide" style="background-image:url('assets/2.jpeg');"><span>Pembersihan Lapangan Desa</span></div>
+            <div class="foto-slide" style="background-image:url('assets/3.jpeg');"><span>Pembersihan Lapangan Desa</span></div>
+          </div>
+          <button class="slider-arrow prev" id="kerjabaktiPrev" aria-label="Sebelumnya">‹</button>
+          <button class="slider-arrow next" id="kerjabaktiNext" aria-label="Berikutnya">›</button>
+          <div class="slider-dots" id="kerjabaktiDots"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1148,21 +1155,21 @@
   }, { threshold: 0.35, rootMargin: '-80px 0px -55% 0px' });
   sectionsForNav.forEach(sec => navObserver.observe(sec));
 
-  // ===== Foto Kegiatan slider (Beranda) =====
-  let fotoSliderTimer = null;
-  let fotoSliderIndex = 0;
-  function initFotoSlider() {
-    const wrap = document.getElementById('fotoSliderWrap');
-    const track = document.getElementById('berandaFotoStrip');
-    const dotsWrap = document.getElementById('sliderDots');
-    const prevBtn = document.getElementById('sliderPrev');
-    const nextBtn = document.getElementById('sliderNext');
+  
+  // ===== Slider generik (dipakai untuk Beranda & Galeri) =====
+  const sliderTimers = {};
+  function initFotoSlider(cfg) {
+    const wrap = document.getElementById(cfg.wrapId);
+    const track = document.getElementById(cfg.trackId);
+    const dotsWrap = document.getElementById(cfg.dotsId);
+    const prevBtn = document.getElementById(cfg.prevId);
+    const nextBtn = document.getElementById(cfg.nextId);
     if (!wrap || !track || !dotsWrap) return;
 
     const slides = Array.from(track.children);
     if (!slides.length) return;
 
-    fotoSliderIndex = 0;
+    let index = 0;
     dotsWrap.innerHTML = '';
     slides.forEach((_, i) => {
       const dot = document.createElement('button');
@@ -1172,24 +1179,24 @@
     });
 
     function update() {
-      track.style.transform = `translateX(-${fotoSliderIndex * 100}%)`;
-      dotsWrap.querySelectorAll('button').forEach((d, i) => d.classList.toggle('active', i === fotoSliderIndex));
+      track.style.transform = `translateX(-${index * 100}%)`;
+      dotsWrap.querySelectorAll('button').forEach((d, i) => d.classList.toggle('active', i === index));
     }
     function goToSlide(i) {
-      fotoSliderIndex = (i + slides.length) % slides.length;
+      index = (i + slides.length) % slides.length;
       update();
       resetAutoplay();
     }
-    function next() { goToSlide(fotoSliderIndex + 1); }
-    function prev() { goToSlide(fotoSliderIndex - 1); }
+    function next() { goToSlide(index + 1); }
+    function prev() { goToSlide(index - 1); }
     function resetAutoplay() {
-      clearInterval(fotoSliderTimer);
-      if (slides.length > 1) fotoSliderTimer = setInterval(next, 4500);
+      clearInterval(sliderTimers[cfg.wrapId]);
+      if (slides.length > 1) sliderTimers[cfg.wrapId] = setInterval(next, 4500);
     }
 
     prevBtn.onclick = prev;
     nextBtn.onclick = next;
-    wrap.addEventListener('mouseenter', () => clearInterval(fotoSliderTimer));
+    wrap.addEventListener('mouseenter', () => clearInterval(sliderTimers[cfg.wrapId]));
     wrap.addEventListener('mouseleave', resetAutoplay);
 
     // swipe support
@@ -1204,7 +1211,13 @@
     update();
     resetAutoplay();
   }
-  initFotoSlider();
+
+  const BERANDA_SLIDER_CFG = { wrapId: 'fotoSliderWrap', trackId: 'berandaFotoStrip', prevId: 'sliderPrev', nextId: 'sliderNext', dotsId: 'sliderDots' };
+  const POSYANDU_SLIDER_CFG = { wrapId: 'posyanduSliderWrap', trackId: 'galeriPosyandu', prevId: 'posyanduPrev', nextId: 'posyanduNext', dotsId: 'posyanduDots' };
+  const KERJABAKTI_SLIDER_CFG = { wrapId: 'kerjabaktiSliderWrap', trackId: 'galeriKerjaBakti', prevId: 'kerjabaktiPrev', nextId: 'kerjabaktiNext', dotsId: 'kerjabaktiDots' };
+  initFotoSlider(BERANDA_SLIDER_CFG);
+  initFotoSlider(POSYANDU_SLIDER_CFG);
+  initFotoSlider(KERJABAKTI_SLIDER_CFG);
 
   // ===== Akses admin tersembunyi: klik logo di footer 3x cepat =====
   (function(){
