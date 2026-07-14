@@ -81,6 +81,11 @@
     background:rgba(0,0,0,.55);color:var(--white);cursor:pointer;font-size:14px;line-height:1;
   }
   .foto-thumb .del-btn:hover{background:var(--terracotta);}
+  .foto-thumb .edit-btn{
+    position:absolute;top:8px;right:40px;width:26px;height:26px;border-radius:50%;border:none;
+    background:rgba(0,0,0,.55);color:var(--white);cursor:pointer;font-size:12px;line-height:1;
+  }
+  .foto-thumb .edit-btn:hover{background:var(--green);}
   .upload-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
   .upload-row .field{flex:1;min-width:160px;margin-bottom:0;}
   .progress-bar{height:6px;background:var(--cream-2);border-radius:999px;overflow:hidden;margin-top:12px;display:none;}
@@ -190,20 +195,23 @@
       </div>
 
       <div class="card">
-        <h3 style="margin-bottom:6px;">Unggah Foto Baru</h3>
+        <h3 style="margin-bottom:6px;" id="fotoFormTitle">Unggah Foto Baru</h3>
         <p style="font-size:13px;color:var(--ink-soft);margin:0 0 18px;">
-          <strong>Beranda</strong> = strip 4 foto di halaman utama. <strong>Galeri</strong> = grid foto di bagian Galeri Kegiatan.
+          <strong>Beranda</strong> = slideshow foto di halaman utama (otomatis bergerak). <strong>Galeri</strong> = slideshow foto di bagian Galeri Kegiatan, terbagi per kategori.
         </p>
         <div class="upload-row">
           <div class="field">
-            <label>Pilih Foto</label>
+            <label>Pilih Foto <span id="fotoFileHint" style="font-weight:400;color:var(--ink-soft);"></span></label>
             <input type="file" id="fotoFile" accept="image/*">
           </div>
           <div class="field">
             <label>Kategori</label>
             <select id="fotoKategori">
-              <option value="beranda">Beranda</option>
-              <option value="galeri">Galeri</option>
+              <option value="beranda">Beranda (Slideshow Utama)</option>
+              <option value="posyandu">Galeri – Posyandu</option>
+              <option value="kerja-bakti">Galeri – Kerja Bakti &amp; Gotong Royong</option>
+              <option value="musyawarah">Galeri – Musyawarah &amp; Rapat Desa</option>
+              <option value="pelayanan">Galeri – Pelayanan Desa</option>
             </select>
           </div>
           <div class="field">
@@ -211,7 +219,10 @@
             <input type="text" id="fotoCaption" placeholder="Contoh: Gotong Royong Warga">
           </div>
           <button class="btn" id="uploadFotoBtn">Unggah</button>
+          <button class="btn btn-outline" id="cancelFotoEditBtn" style="display:none;">Batal Edit</button>
         </div>
+        <input type="hidden" id="fotoEditId">
+        <input type="hidden" id="fotoEditPath">
         <div class="progress-bar" id="uploadProgress"><div class="fill" id="uploadProgressFill"></div></div>
         <div class="msg" id="fotoMsg"></div>
       </div>
@@ -268,7 +279,7 @@
 ===================================================================== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBvekNJtp5dm2JpryxxQHYmB2iBmo8-E1E",
@@ -291,7 +302,16 @@
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  const storage = firebase.storage();
+
+  // ============================================================
+  // SUPABASE — dipakai khusus untuk penyimpanan file foto (gratis,
+  // tanpa perlu upgrade paket). Hanya URL + publishable key yang
+  // dipakai di sini, keduanya memang aman ditaruh di kode publik.
+  // ============================================================
+  const SUPABASE_URL = 'https://thzgjfmcjhvmiedupfau.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_08FR9YpzM9bPuhEraJbzRg_L9tK6pI6';
+  const SUPABASE_BUCKET = 'galeri';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ============================================================
   // LOGIN SEDERHANA — username & password diatur langsung di sini.
@@ -343,14 +363,6 @@
     sessionStorage.removeItem('desaAdminUser');
     showLogin();
   });
-
-  // Tetap login selama tab browser belum ditutup
-  const savedUser = sessionStorage.getItem('desaAdminUser');
-  if (savedUser === ADMIN_USERNAME) {
-    showApp(savedUser);
-  } else {
-    showLogin();
-  }
 
   // ---- CRUD Pengumuman ----
   const col = () => db.collection('pengumuman');
@@ -445,66 +457,95 @@
   // ---- CRUD Foto Kegiatan ----
   const fotoCol = () => db.collection('galeri');
 
-  document.getElementById('uploadFotoBtn').addEventListener('click', () => {
+  document.getElementById('uploadFotoBtn').addEventListener('click', async () => {
     const fileInput = document.getElementById('fotoFile');
     const kategori = document.getElementById('fotoKategori').value;
     const caption = document.getElementById('fotoCaption').value.trim();
     const msg = document.getElementById('fotoMsg');
     const bar = document.getElementById('uploadProgress');
     const fill = document.getElementById('uploadProgressFill');
+    const uploadBtn = document.getElementById('uploadFotoBtn');
+    const editId = document.getElementById('fotoEditId').value;
+    const editPath = document.getElementById('fotoEditPath').value;
     msg.className = 'msg';
 
     const file = fileInput.files[0];
-    if (!file) {
-      msg.textContent = 'Pilih file foto terlebih dahulu.';
-      msg.classList.add('show', 'err');
-      return;
-    }
     if (!caption) {
       msg.textContent = 'Isi keterangan foto terlebih dahulu.';
       msg.classList.add('show', 'err');
       return;
     }
 
-    const path = 'galeri/' + Date.now() + '_' + file.name.replace(/\s+/g, '_');
-    const ref = storage.ref(path);
-    const task = ref.put(file);
-    bar.classList.add('show');
-
-    task.on('state_changed', (snap) => {
-      const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
-      fill.style.width = pct + '%';
-    }, (err) => {
-      bar.classList.remove('show');
-      msg.textContent = 'Gagal mengunggah: ' + err.message;
-      msg.classList.add('show', 'err');
-    }, () => {
-      task.snapshot.ref.getDownloadURL().then(url => {
-        return fotoCol().add({
-          url, caption, kategori,
-          path,
-          tanggal: firebase.firestore.Timestamp.now()
-        });
-      }).then(() => {
-        bar.classList.remove('show');
-        fill.style.width = '0%';
-        fileInput.value = '';
-        document.getElementById('fotoCaption').value = '';
-        msg.textContent = 'Foto berhasil diunggah.';
+    // ---- Mode EDIT tanpa ganti file: cukup update caption & kategori ----
+    if (editId && !file) {
+      fotoCol().doc(editId).update({ caption, kategori }).then(() => {
+        msg.textContent = 'Perubahan foto tersimpan.';
         msg.classList.add('show', 'ok');
+        resetFotoForm();
         loadFoto();
       }).catch(err => {
-        bar.classList.remove('show');
-        msg.textContent = 'Gagal menyimpan data foto: ' + err.message;
+        msg.textContent = 'Gagal menyimpan perubahan: ' + err.message;
         msg.classList.add('show', 'err');
       });
-    });
+      return;
+    }
+
+    // ---- Mode TAMBAH BARU atau EDIT dengan ganti file: perlu file ----
+    if (!file) {
+      msg.textContent = 'Pilih file foto terlebih dahulu.';
+      msg.classList.add('show', 'err');
+      return;
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+    const path = Date.now() + '_' + safeName;
+    bar.classList.add('show');
+    fill.style.width = '40%';
+    uploadBtn.disabled = true;
+    msg.textContent = 'Mengunggah...';
+    msg.classList.add('show', 'ok');
+
+    try {
+      const { error: uploadError } = await supabaseClient.storage
+        .from(SUPABASE_BUCKET)
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+
+      fill.style.width = '80%';
+      const { data: urlData } = supabaseClient.storage.from(SUPABASE_BUCKET).getPublicUrl(path);
+      const url = urlData.publicUrl;
+
+      if (editId) {
+        await fotoCol().doc(editId).update({ url, caption, kategori, path });
+        if (editPath) {
+          supabaseClient.storage.from(SUPABASE_BUCKET).remove([editPath]).catch(() => {});
+        }
+      } else {
+        await fotoCol().add({
+          url, caption, kategori, path,
+          tanggal: firebase.firestore.Timestamp.now()
+        });
+      }
+
+      fill.style.width = '100%';
+      msg.textContent = editId ? 'Perubahan foto tersimpan.' : 'Foto berhasil diunggah.';
+      msg.classList.add('show', 'ok');
+      resetFotoForm();
+      loadFoto();
+    } catch (err) {
+      msg.textContent = 'Gagal mengunggah: ' + err.message;
+      msg.classList.remove('ok');
+      msg.classList.add('show', 'err');
+    } finally {
+      uploadBtn.disabled = false;
+      setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 600);
+    }
   });
 
   function deleteFoto(id, path) {
     if (!confirm('Hapus foto ini?')) return;
     fotoCol().doc(id).delete()
-      .then(() => { if (path) return storage.ref(path).delete().catch(() => {}); })
+      .then(() => { if (path) return supabaseClient.storage.from(SUPABASE_BUCKET).remove([path]).catch(() => {}); })
       .then(loadFoto)
       .catch(err => alert('Gagal menghapus: ' + err.message));
   }
@@ -522,14 +563,43 @@
         div.className = 'foto-thumb';
         div.innerHTML = `
           <img src="${d.url}" alt="${d.caption || ''}">
-          <span class="tag">${d.kategori === 'beranda' ? 'Beranda' : 'Galeri'}</span>
+          <span class="tag">${({beranda:'Beranda', posyandu:'Posyandu', 'kerja-bakti':'Kerja Bakti', musyawarah:'Musyawarah', pelayanan:'Pelayanan'})[d.kategori] || d.kategori}</span>
+          <button class="edit-btn" title="Edit">✎</button>
           <button class="del-btn" title="Hapus">✕</button>
           <div class="cap">${d.caption || ''}</div>`;
         div.querySelector('.del-btn').addEventListener('click', () => deleteFoto(doc.id, d.path));
+        div.querySelector('.edit-btn').addEventListener('click', () => editFoto(doc.id, d));
         grid.appendChild(div);
       });
     }).catch(err => console.error('Gagal memuat foto:', err));
   }
+
+  function editFoto(id, d) {
+    document.getElementById('fotoEditId').value = id;
+    document.getElementById('fotoEditPath').value = d.path || '';
+    document.getElementById('fotoKategori').value = d.kategori || 'beranda';
+    document.getElementById('fotoCaption').value = d.caption || '';
+    document.getElementById('fotoFile').value = '';
+    document.getElementById('fotoFormTitle').textContent = 'Edit Foto';
+    document.getElementById('fotoFileHint').textContent = '(kosongkan jika tidak ganti foto)';
+    document.getElementById('uploadFotoBtn').textContent = 'Simpan Perubahan';
+    document.getElementById('cancelFotoEditBtn').style.display = 'inline-flex';
+    window.scrollTo({ top: document.getElementById('fotoFormTitle').offsetTop - 90, behavior: 'smooth' });
+  }
+
+  function resetFotoForm() {
+    document.getElementById('fotoEditId').value = '';
+    document.getElementById('fotoEditPath').value = '';
+    document.getElementById('fotoFile').value = '';
+    document.getElementById('fotoCaption').value = '';
+    document.getElementById('fotoKategori').value = 'beranda';
+    document.getElementById('fotoFormTitle').textContent = 'Unggah Foto Baru';
+    document.getElementById('fotoFileHint').textContent = '';
+    document.getElementById('uploadFotoBtn').textContent = 'Unggah';
+    document.getElementById('cancelFotoEditBtn').style.display = 'none';
+  }
+
+  document.getElementById('cancelFotoEditBtn').addEventListener('click', resetFotoForm);
 
   function loadDataDesa() {
     db.collection('data_desa').doc('utama').get().then(doc => {
@@ -561,6 +631,15 @@
       msg.classList.add('show', 'err');
     });
   });
+
+  // Tetap login selama tab browser belum ditutup — dicek paling akhir,
+  // setelah semua fungsi & referensi di atas siap.
+  const savedUser = sessionStorage.getItem('desaAdminUser');
+  if (savedUser === ADMIN_USERNAME) {
+    showApp(savedUser);
+  } else {
+    showLogin();
+  }
 </script>
 
 </body>
